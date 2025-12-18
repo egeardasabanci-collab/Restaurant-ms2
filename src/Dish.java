@@ -7,6 +7,7 @@ public class Dish extends Product{
     }
     public double getGrammage() {
         return grammage;
+    
     }
     public void setGrammage(double grammage) {
         this.grammage = grammage;
@@ -21,7 +22,5 @@ public class Dish extends Product{
     public void checkOut(){ // try/catch yapılacak
 
     }
-    
-
-
+    //TRY COMMİT
 }
