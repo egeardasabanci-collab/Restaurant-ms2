@@ -14,8 +14,15 @@ public class Beverage extends Product {
     public String getCategory() {
         return "--Drink--";
     }
+    //dishteki ile aynı şekilde bu da istersek değiştiiririz şimdilik hata fırlatıyorum
     @Override
-    public void checkOut() { // try/catch yapılacak
+    public void checkOut() throw StockMaterialUnavailableException({
+        if(getPiece()<=0){
+            throw new StockMaterialUnavailableException("NO STOCK") + getName();
+            
+    };
+}
+     setPiece(getPiece() - 1);//stok azaltıyor
+}
 
-    }
 }
