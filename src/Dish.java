@@ -18,9 +18,14 @@ public class Dish extends Product{
         return "--Food--";
     }
 
+    //amacımız hatayı çözmek değil bildirmek olduğu için try catch değil throw kullandım
+    //(duruma göre eğer exception olarak değil de ne stock olarak çıktı vermek istersek değiştiririm try catch ile)
     @Override
-    public void checkOut(){ // try/catch yapılacak
+    public void checkOut()throws StockMaterialUnavailableException{
+        if(getPiece () <= 0){
+            throw new StockMaterialUnavailableException("NO STOCK") + getName();
+    };
+    } 
+        setPiece (getPiece() - 1 );
 
-    }
-    //TRY COMMİT
 }
