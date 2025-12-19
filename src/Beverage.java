@@ -1,5 +1,5 @@
 public class Beverage extends Product {
-    private double mL; // içecek miktarı bilgisi
+    private double mL; // içecek miktarı bilgisi.
     public Beverage(int id, String name, double price,int piece, boolean stock,double mL) {
         super (id,name,price,piece);
         this.mL=mL;
