@@ -7,7 +7,7 @@ public class Dish extends Product{
     }
     public double getGrammage() {
         return grammage;
-    
+
     }
     public void setGrammage(double grammage) {
         this.grammage = grammage;
@@ -23,8 +23,15 @@ public class Dish extends Product{
     @Override
     public void checkOut()throws StockMaterialUnavailableException{
         if(getPiece () <= 0){
-            throw new StockMaterialUnavailableException("NO STOCK") + getName();
-    };
+            throw new StockMaterialUnavailableException("NO STOCK" + getName());
+        };
+        setPiece (getPiece() - 1 );
+    }
+
+
+
+
+}
     } 
         setPiece (getPiece() - 1 );
 
