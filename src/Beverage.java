@@ -1,5 +1,5 @@
 public class Beverage extends Product {
-    private double mL; // içecek miktarı bilgisi.
+    private double mL; // içecek miktarı bilgisi
     public Beverage(int id, String name, double price,int piece, boolean stock,double mL) {
         super (id,name,price,piece);
         this.mL=mL;
@@ -16,13 +16,13 @@ public class Beverage extends Product {
     }
     //dishteki ile aynı şekilde bu da istersek değiştiiririz şimdilik hata fırlatıyorum
     @Override
-    public void checkOut() throw StockMaterialUnavailableException({
+    public void checkOut() throws StockMaterialUnavailableException{
         if(getPiece()<=0){
-            throw new StockMaterialUnavailableException("NO STOCK") + getName();
-            
-    };
-}
-     setPiece(getPiece() - 1);//stok azaltıyor
-}
+
+            throw new StockMaterialUnavailableException("NO STOCK" + getName());
+
+        }
+        setPiece(getPiece() - 1);//stok azaltıyor
+    }
 
 }
