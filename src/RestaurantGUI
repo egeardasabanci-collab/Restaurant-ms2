@@ -1,0 +1,281 @@
+import javax.swing.*;
+import java.awt.*;
+import java.net.URL; 
+import java.util.ArrayList;
+import java.util.List;
+
+// Restoran otomasyonu için ana ekranımız
+public class RestaurantGUI extends JFrame {
+
+    
+   // Her yemek için bir resim değişkeni tanımladım
+    private Image beytiImg, lambImg, alfredoImg, seafoodImg,
+            burgerImg, pizzaImg, sushiImg, salmonImg;
+
+    // LİSTELER VE VERİLER
+    private List<Product> menu = new ArrayList<>(); // Tüm menüyü bu listede tutuyoruz
+    private Bill bill = new Bill(); // Hesap işlemlerini yapan sınıf
+
+    // Sağ taraftaki sipariş listesi (JList) için model
+    private DefaultListModel<String> orderModel = new DefaultListModel<>();
+    private JList<String> orderList = new JList<>(orderModel);
+
+    // Toplam tutarı gösteren etiket
+    private JLabel totalLabel = new JLabel("TOPLAM: 0 ₺");
+
+    // CONSTRUCTOR
+    public RestaurantGUI() {
+        // Pencere başlığı ve ayarları
+        setTitle("Restoran Sipariş Sistemi");
+        setSize(1100, 800);
+        setDefaultCloseOperation(EXIT_ON_CLOSE); // Çarpıya basınca program kapansın
+        setLayout(new BorderLayout()); // Yerleşim düzeni
+
+        // Arka plan rengini hafif krem rengi yaptım
+        getContentPane().setBackground(new Color(245, 240, 225));
+
+        resimleriYukle(); //  Resimleri hafızaya alma
+        menuyuOlustur();  // Yemekleri listeye ekleme
+        ekraniCiz();      // Ekrana butonları ve resimleri koyma
+    }
+
+    // resim yükleme kısmı
+    private void resimleriYukle() {
+        // Dosya isimlerini birebir src klasöründeki isimlerle aynı yazdım.
+        // Başlarına '/' koyuyoruz ki src klasörünün içinde arasın.
+
+        beytiImg   = resimBul("/beyti.jpeg");
+        lambImg    = resimBul("/lamb.jpeg");
+        alfredoImg = resimBul("/alfredo.jpeg");
+        seafoodImg = resimBul("/seafood.jpeg");
+
+        // Bu dosya isimlerinde büyük harf ve boşluk vardı, aynen yazdım hata vermesin diye
+        burgerImg  = resimBul("/Burger Deluxe.jpeg");
+        pizzaImg   = resimBul("/ruffle Pizza.jpeg");
+        sushiImg   = resimBul("/Sushi Plate.jpeg");
+        salmonImg  = resimBul("/Grilled Salmon.jpeg");
+    }
+
+    // Resmi güvenli şekilde yüklemek için yazdığım yardımcı metot
+    private Image resimBul(String yol) {
+        try {
+            // getClass().getResource ile projenin içindeki dosyayı alıyoruz
+            URL url = getClass().getResource(yol);
+
+            // Eğer dosya bulunduysa resmi döndür
+            if (url != null) {
+                return new ImageIcon(url).getImage();
+            } else {
+                // Dosya yoksa konsola uyarı yaz (Program çökmesin diye)
+                System.out.println("HATA: Bu resim bulunamadı -> " + yol);
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // ===== MENÜYÜ DOLDURMA =====
+    private void menuyuOlustur() {
+        // Burada tek tek ürünleri oluşturup listeye ekliyorum.
+        // Dish = Yemek, Beverage = İçecek (Projedeki sınıflar)
+
+        // --- YEMEKLER ---
+        menu.add(new Dish(1, "PREMIUM DELUX ULTRA MEGA LAMB BEYTI SARMA KEBAB", 850, 3, 550));
+        menu.add(new Dish(2, "Lamb Chops", 520, 2, 400));
+        menu.add(new Dish(3, "Chicken Alfredo", 320, 4, 300));
+        menu.add(new Dish(4, "Seafood Pasta", 390, 2, 320));
+        menu.add(new Dish(5, "Burger Deluxe", 280, 5, 250));
+        menu.add(new Dish(6, "Truffle Pizza", 360, 3, 330));
+        menu.add(new Dish(7, "Sushi Plate", 480, 2, 200));
+        menu.add(new Dish(8, "Grilled Salmon", 510, 2, 300));
+
+        // --- İÇECEKLER ---
+        menu.add(new Beverage(9, "Cola", 80, 6, 330));
+        menu.add(new Beverage(10, "Water", 40, 10, 500));
+        menu.add(new Beverage(11, "Orange Juice", 120, 4, 400));
+        menu.add(new Beverage(12, "Iced Coffee", 150, 3, 350));
+        menu.add(new Beverage(13, "Milkshake", 180, 3, 400));
+    }
+
+    // ===== ARAYÜZÜ (GUI) OLUŞTURMA =====
+    private void ekraniCiz() {
+        // Sol taraftaki menü paneli
+        JPanel menuPanel = new JPanel();
+        // Elemanları yukarıdan aşağı dizmek için BoxLayout Y_AXIS kullandım
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+        menuPanel.setBackground(new Color(245, 240, 225));
+
+        // Başlıkları oluştur
+        JLabel yemekBaslik = baslikYarat("FOODS");
+        JLabel icecekBaslik = baslikYarat("DRINKS");
+
+        // -- Yemekleri Ekleme Döngüsü --
+        menuPanel.add(yemekBaslik);
+        for (Product urun : menu) {
+            // İlk 8 ürün yemek olduğu için ID kontrolü yaptım
+            if (urun.getId() <= 8) {
+                JPanel urunKutusu = urunKutusuOlustur(urun);
+                menuPanel.add(urunKutusu);
+                // Kutular birbirine yapışmasın diye araya boşluk koydum
+                menuPanel.add(Box.createVerticalStrut(20));
+            }
+        }
+
+        // -- İçecekleri Ekleme Döngüsü --
+        menuPanel.add(Box.createVerticalStrut(30)); // Yemeklerle içecekler arasına büyük boşluk
+        menuPanel.add(icecekBaslik);
+
+        for (Product urun : menu) {
+            // ID'si 8'den büyük olanlar içecek
+            if (urun.getId() > 8) {
+                JPanel urunKutusu = urunKutusuOlustur(urun);
+                menuPanel.add(urunKutusu);
+                menuPanel.add(Box.createVerticalStrut(15));
+            }
+        }
+
+        // Menü çok uzun olursa kaydırma çubuğu (Scroll) çıksın
+        JScrollPane menuScroll = new JScrollPane(menuPanel);
+        menuScroll.setPreferredSize(new Dimension(650, 0)); // Genişliği ayarladım
+        menuScroll.getVerticalScrollBar().setUnitIncrement(20); // Kaydırma hızını artırdım
+
+        // ===== SAĞ TARAF (SİPARİŞ PANELİ) =====
+        JPanel sagPanel = new JPanel(new BorderLayout());
+        sagPanel.setBorder(BorderFactory.createTitledBorder("CHECK OUT"));
+
+        JScrollPane listeScroll = new JScrollPane(orderList);
+
+        // Temizle Butonu
+        JButton temizleBtn = new JButton("CLEAN THE ORDER");
+        temizleBtn.addActionListener(e -> {
+            orderModel.clear(); // Listeyi boşalt
+            bill = new Bill();  // Hesabı sıfırla
+            totalLabel.setText("TOTAL: 0 ₺");
+        });
+
+        // Ödeme Butonu
+        JButton odeBtn = new JButton("Checkout");
+        odeBtn.addActionListener(e ->
+                // Ekrana bilgi mesajı olarak fişi çıkar
+                JOptionPane.showMessageDialog(this,
+                        bill.getDetails(),
+                        "BILL",
+                        JOptionPane.INFORMATION_MESSAGE)
+        );
+
+        // Alt kısımdaki butonları tutan panel
+        JPanel butonPaneli = new JPanel(new GridLayout(3,1, 5, 5));
+        butonPaneli.add(totalLabel);
+        butonPaneli.add(temizleBtn);
+        butonPaneli.add(odeBtn);
+
+        sagPanel.add(listeScroll, BorderLayout.CENTER);
+        sagPanel.add(butonPaneli, BorderLayout.SOUTH);
+
+        // Ana ekrana panelleri yerleştir
+        add(menuScroll, BorderLayout.WEST);
+        add(sagPanel, BorderLayout.CENTER);
+    }
+
+    // ===== HER BİR ÜRÜN İÇİN KUTU OLUŞTURMA =====
+    private JPanel urunKutusuOlustur(Product p) {
+        JPanel panel = new JPanel();
+        // Dikey hizalama yapıyoruz (Buton üstte, resim altta olacak)
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(139, 0, 0)); // Koyu kırmızı renk
+
+        // Etrafına siyah ince bir çizgi çekelim
+        panel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+
+        // Ürün Butonu
+        String butonYazisi = p.getName() + " - " + p.getPrice() + "₺ | Stock: " + p.getPiece();
+        JButton btn = new JButton(butonYazisi);
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT); // Ortala
+
+        // Butonu yatayda genişletmek için
+        btn.setMaximumSize(new Dimension(1000, 40));
+
+        // Butona tıklanınca ne olacak?
+        btn.addActionListener(e -> {
+            try {
+                // 1. Stoktan düş
+                p.decreaseStock();
+
+                // 2. Hesaba ekle
+                bill.add(p);
+
+                // 3. Listeye ekle
+                orderModel.addElement(p.getName() + " - " + p.getPrice() + "₺");
+
+                // 4. Toplam tutarı güncelle
+                totalLabel.setText("TOTAL: " + bill.getTotal() + " ₺");
+
+                // 5. Buton üzerindeki stoğu güncelle
+                btn.setText(p.getName() + " - " + p.getPrice() + "₺ | Stock: " + p.getPiece());
+
+            } catch (Exception hata) {
+                // Eğer stok biterse hata mesajı göster
+                JOptionPane.showMessageDialog(this, "NO STOCK!", "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Panelin içine önce butonu ekle
+        panel.add(btn);
+
+        // Şimdi altına resmi ekleyelim
+        Image img = ilgiliResmiBul(p.getName());
+
+        if (img != null) {
+            // Araya biraz boşluk
+            panel.add(Box.createVerticalStrut(10));
+
+            // Resmi kutuya sığacak şekilde küçült (200x130 boyutunda)
+            Image kucukResim = img.getScaledInstance(200, 130, Image.SCALE_SMOOTH);
+            JLabel resimLabel = new JLabel(new ImageIcon(kucukResim));
+            resimLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Ortala
+
+            // Resmi panele ekle
+            panel.add(resimLabel);
+
+            // Resmin altına da biraz boşluk bırakalım ki sıkışık durmasın
+            panel.add(Box.createVerticalStrut(10));
+        }
+
+        return panel;
+    }
+
+    // ===== İSME GÖRE HANGİ RESMİN GELECEĞİNİ SEÇME =====
+    private Image ilgiliResmiBul(String urunAdi) {
+        // İsim kontrolü yaparken büyük küçük harf sorunu olmasın diye küçültüyoruz
+        String kucukIsim = urunAdi.toLowerCase();
+
+        if (kucukIsim.contains("beyti")) return beytiImg;
+        if (kucukIsim.contains("lamb")) return lambImg;
+        if (kucukIsim.contains("alfredo")) return alfredoImg;
+        if (kucukIsim.contains("seafood")) return seafoodImg;
+        if (kucukIsim.contains("burger")) return burgerImg;
+        if (kucukIsim.contains("pizza")) return pizzaImg;
+        if (kucukIsim.contains("sushi")) return sushiImg;
+        if (kucukIsim.contains("salmon")) return salmonImg;
+
+        return null; // Eşleşme yoksa resim yok demektir
+    }
+
+    // Başlık etiketi oluşturan basit metot
+    private JLabel baslikYarat(String yazi) {
+        JLabel lbl = new JLabel(yazi);
+        lbl.setFont(new Font("Arial", Font.BOLD, 20)); // Kalın yazı
+        lbl.setAlignmentX(Component.CENTER_ALIGNMENT); // Ortala
+        return lbl;
+    }
+
+    // Programın başladığı yer
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            RestaurantGUI gui = new RestaurantGUI();
+            gui.setVisible(true); // Pencereyi görünür yap
+        });
+    }
+}
